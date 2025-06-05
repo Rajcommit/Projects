@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: chat-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: chat-backend:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: chat-config
+              key: REDIS_HOST
+        - name: MONGO_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: chat-config
+              key: MONGO_HOST
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: chat-secret
+              key: MONGO_USER
+        - name: MONGO_PASS
+          valueFrom:
+            secretKeyRef:
+              name: chat-secret
+              key: MONGO_PASS
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "500m"
